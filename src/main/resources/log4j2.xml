@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="120" status="info">
+    <properties>
+        <property name="log.home">/export/Logs/shardingSphereTest/</property>
+        <Property name="logPatternLayout">%d{yyyy-MM-dd HH:mm:ss.SSS} - %X{traceId} - %X{X-trace-id} [%t] %-5level %logger{1.}:%L - %msg%n
+        </Property>
+        <Property name="rollingLogSize">100 MB</Property>
+        <Property name="log.includeLocation">true</Property>
+        <Property name="rollingLogMaxNum">10</Property>
+        <Property name="log.level">info</Property>
+        <Property name="log.file.keepday">3d</Property>
+    </properties>
+
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${logPatternLayout}"/>
+        </Console>
+        <!-- 所有日志-->
+        <RollingRandomAccessFile fileName="${log.home}/all.log" filePattern="${log.home}/all.%d{yyyyMMdd}-%i.log"
+                                 immediateFlush="true" name="ALL_FILE">
+            <Filters>
+                <ThresholdFilter level="${log.level}" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+
+            <PatternLayout pattern="${logPatternLayout}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${rollingLogSize}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${rollingLogMaxNum}">
+                <Delete basePath="${log.home}">
+                    <IfFileName glob="all.*.log"/>
+                    <IfLastModified age="${log.file.keepday}"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <Loggers>
+        <logger name="person.hwj.dao">
+            <level value="debug"/>
+            <appender-ref ref="console"/>
+        </logger>
+        <!-- includeLocation="true" 打印exception的具体行号，性能有影响-->
+        <Root includeLocation="true" level="info">
+            <appender-ref ref="ALL_FILE"/>
+            <appender-ref ref="console"/>
+        </Root>
+    </Loggers>
+
+</Configuration>
